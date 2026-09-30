@@ -84,3 +84,7 @@ saved_models/
 # Local generated images
 # =========================
 accuracy_comparison.png
+.env
+.venv/
+__pycache__/
+.pytest_cache/
