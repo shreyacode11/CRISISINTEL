@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Earthquake Prediction{% endblock %}
+{% block content %}
+<h3 class="mb-4"><i class="fa fa-house-crack text-danger me-2"></i>Earthquake Alert Prediction</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fa fa-location-dot me-1 text-danger"></i>
+                        Target City
+                    </label>
+                    <select name="city" class="form-select" required>
+                        <option value="" disabled selected>Select city…</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Goa">Goa</option>
+                    </select>
+                    <small class="text-muted">
+                        The alert will be sent to this city's people bot.
+                    </small>
+                </div>
+                <div class="mb-3"><label class="form-label">Magnitude</label>
+                    <input type="number" step="any" name="magnitude" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Depth (km)</label>
+                    <input type="number" step="any" name="depth" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">CDI</label>
+                    <input type="number" step="any" name="cdi" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">MMI</label>
+                    <input type="number" step="any" name="mmi" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">SIG</label>
+                    <input type="number" step="any" name="sig" class="form-control" required></div>
+                <button class="btn btn-danger"><i class="fa fa-play me-2"></i>Predict</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-6">
+        {% if result %}
+        <div class="card p-4">
+            <h5>Prediction Result</h5>
+            <hr>
+            <p><strong>Alert Level:</strong> {{ result.label }}</p>
+            {% if result.confidence %}
+            <p><strong>Confidence:</strong> {{ '%.2f'|format(result.confidence*100) }}%</p>
+            {% endif %}
+            <div class="alert alert-info mb-0">Alert level encoded by trained model.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

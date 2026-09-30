@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Cyclone Prediction{% endblock %}
+{% block content %}
+<h3 class="mb-4"><i class="fa fa-hurricane text-warning me-2"></i>Cyclone Formation Prediction</h3>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card p-4">
+            <form method="POST">
+
+
+                    <div class="row g-3">
+                        <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fa fa-location-dot me-1 text-danger"></i>
+                            Target City
+                        </label>
+                        <select name="city" class="form-select" required>
+                            <option value="" disabled selected>Select city…</option>
+                            <option value="Bangalore">Bangalore</option>
+                            <option value="Chennai">Chennai</option>
+                            <option value="Goa">Goa</option>
+                        </select>
+                        <small class="text-muted">
+                            The alert will be sent to this city's people bot.
+                        </small>
+                    </div>
+
+
+                    <div class="col-md-6"><label class="form-label">Sea Surface Temp</label>
+                        <input type="number" step="any" name="sst" class="form-control" required></div>
+                    <div class="col-md-6"><label class="form-label">Atmospheric Pressure</label>
+                        <input type="number" step="any" name="pressure" class="form-control" required></div>
+                    <div class="col-md-6"><label class="form-label">Humidity</label>
+                        <input type="number" step="any" name="humidity" class="form-control" required></div>
+                    <div class="col-md-6"><label class="form-label">Wind Shear</label>
+                        <input type="number" step="any" name="wind_shear" class="form-control" required></div>
+                    <div class="col-md-6"><label class="form-label">Vorticity</label>
+                        <input type="number" step="any" name="vorticity" class="form-control" required></div>
+                    <div class="col-md-6"><label class="form-label">Latitude</label>
+                        <input type="number" step="any" name="latitude" class="form-control" required></div>
+                    <div class="col-md-6"><label class="form-label">Ocean Depth</label>
+                        <input type="number" step="any" name="ocean_depth" class="form-control" required></div>
+                    <div class="col-md-6"><label class="form-label">Proximity to Coastline</label>
+                        <input type="number" step="any" name="proximity" class="form-control" required></div>
+                    <div class="col-md-12"><label class="form-label">Pre-existing Disturbance</label>
+                        <select name="disturbance" class="form-select">
+                            <option value="0">No</option><option value="1">Yes</option>
+                        </select></div>
+                </div>
+                <button class="btn btn-warning mt-3"><i class="fa fa-play me-2"></i>Predict</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-5">
+        {% if result %}
+            <div class="card p-4 border-0 shadow-sm"
+                style="border: 2px solid {{ '#dc3545' if 'cyclone' in result.label|lower or result.label|lower == 'yes' else '#28a745' }} !important;">
+                <h5>Prediction Result</h5>
+                <hr>
+
+                <p><strong>Result:</strong> {{ result.label }}</p>
+
+                {% if result.confidence is not none %}
+                <p><strong>Confidence:</strong>
+                    {{ '%.2f'|format(result.confidence) }}%
+                </p>
+                <div class="progress" style="height: 22px;">
+                    <div class="progress-bar {% if result.confidence > 75 %}bg-danger{% elif result.confidence > 50 %}bg-warning{% else %}bg-secondary{% endif %}"
+                        style="width: {{ result.confidence }}%;">
+                        {{ '%.1f'|format(result.confidence) }}%
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if 'cyclone' in result.label|lower or result.label|lower == 'yes' %}
+                    <div class="alert alert-danger mt-3 mb-0">
+                        <i class="fa fa-triangle-exclamation me-2"></i>
+                        <strong>CYCLONE ALERT!</strong>
+                        Formation predicted — issue public advisory.
+                    </div>
+                {% else %}
+                    <div class="alert alert-success mt-3 mb-0">
+                        <i class="fa fa-circle-check me-2"></i>
+                        No cyclone formation predicted.
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

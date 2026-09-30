@@ -1,0 +1,7 @@
+Model,Algorithm,Accuracy_%
+Cyclone,Logistic Regression,100.0
+Cyclone,Random Forest,100.0
+Cyclone,SVM,100.0
+Earthquake,Random Forest,91.92
+Earthquake,SVM,81.15
+Earthquake,Logistic Regression,66.54

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Emergency Notes{% endblock %}
+{% block content %}
+<h3 class="mb-4"><i class="fa fa-bullhorn text-danger me-2"></i>Emergency Broadcast Notes</h3>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h6>Post New Note</h6>
+            <form method="POST">
+                <div class="mb-3"><label class="form-label">Title</label>
+                    <input name="title" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Message</label>
+                    <textarea name="message" rows="4" class="form-control" required></textarea></div>
+                <div class="mb-3"><label class="form-label">Severity</label>
+                    <select name="severity" class="form-select">
+                        <option value="low">Low</option>
+                        <option value="moderate" selected>Moderate</option>
+                        <option value="high">High</option>
+                    </select></div>
+                <div class="mb-3"><label class="form-label">City (optional)</label>
+                    <input name="city" class="form-control"></div>
+                <button class="btn btn-danger w-100"><i class="fa fa-paper-plane me-2"></i>Broadcast</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-7">
+        {% for n in notes %}
+        <div class="card p-3 mb-2">
+            <div class="d-flex justify-content-between">
+                <h6 class="mb-1">{{ n.title }}
+                    <span class="badge bg-{{ 'danger' if n.severity=='high' else 'warning text-dark' if n.severity=='moderate' else 'secondary' }}">{{ n.severity }}</span>
+                </h6>
+                <form method="POST" action="{{ url_for('admin_delete_note', nid=n.id) }}">
+                    <button class="btn btn-sm btn-outline-danger"><i class="fa fa-trash"></i></button>
+                </form>
+            </div>
+            <small class="text-muted">
+                {% if n.city %}<i class="fa fa-location-dot me-1"></i>{{ n.city }} · {% endif %}
+                {{ n.created_at | ist }}
+            </small>
+        </div>
+        {% else %}
+        <p class="text-muted">No notes posted yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

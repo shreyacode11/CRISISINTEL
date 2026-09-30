@@ -1,0 +1,53 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{0.6em}{}
+
+\title{\textbf{CrisisIntel: An AI/ML Platform\\for Disaster Prediction and Rescue Management}\\[4pt]\large Technical Report}
+\author{Shreya B Saboji\\Dept.\ of Information Science \& Engineering\\Global Academy of Technology, Bengaluru\\\texttt{shreyabsaboji@gmail.com}}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+CrisisIntel is a Python (Flask) web platform that predicts floods, cyclones and earthquakes using machine-learning classifiers and supports rescue coordination through help-request tracking, drone-based detection of injured people (YOLO) and Telegram alerts. This report summarises the system architecture, the model evaluation results, and the automated testing and CI pipeline used to validate the models.
+\end{abstract}
+
+\section{System Overview}
+The platform has two role-based portals (Admin and Public). Administrators run flood, cyclone and earthquake predictions, review and prioritise help requests and analyse drone frames. Public users submit help requests and view routes to nearby help points on a Folium map. Help requests are classified with the Gemini API, and Telegram notifications alert responders.
+
+\section{Machine-Learning Models}
+Three classifiers were trained and compared for each hazard: Random Forest, Support Vector Machine (SVM) and Logistic Regression. Data were pre-processed (encoding, scaling) and evaluated on a held-out test set using classification reports and confusion matrices.
+
+\begin{table}[H]
+\centering
+\caption{Test accuracy (\%) of each classifier per hazard.}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Hazard (test samples)} & \textbf{Random Forest} & \textbf{SVM} & \textbf{Logistic Reg.}\\
+\midrule
+Cyclone (400, 2 classes)        & 100.0 & 100.0 & 100.0\\
+Earthquake (260, 3 alert levels)& 91.9  & 81.2  & 66.5\\
+Flood (28{,}881, 5 classes)     & 100.0 & 97.0  & 99.0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{accuracy_comparison.png}
+\caption{Accuracy comparison for the cyclone and earthquake models (generated automatically by the CI pipeline).}
+\end{figure}
+
+\section{Testing and Continuous Integration}
+The original test scripts were interactive, so automated \texttt{pytest} tests were written to check that each predictor returns a valid class label, rejects incomplete input, and gives a sensible alert for strong earthquakes (5 tests in total). A Jenkins pipeline defined in a \texttt{Jenkinsfile} checks out the repository, installs pinned dependencies, runs the tests with coverage, generates the accuracy report and archives the results on every push.
+
+\section{Conclusion}
+Random Forest gave the best or equal-best accuracy on all three hazards. Very high accuracy on the cyclone and flood data suggests those datasets are highly separable, so future work will evaluate the models on real, independent observations and add cross-validation.
+
+\end{document}

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Citizen Home{% endblock %}
+{% block content %}
+
+<h3 class="mb-3">
+    <i class="fa fa-house-user text-primary me-2"></i>
+    Welcome, {{ session.name }}
+</h3>
+
+<!-- ============================================================ -->
+<!-- EMERGENCY BROADCAST (latest note)                             -->
+<!-- ============================================================ -->
+{% if notes %}
+<div class="alert alert-danger d-flex align-items-start shadow-sm">
+    <i class="fa fa-bullhorn fa-2x me-3 mt-1"></i>
+    <div class="flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center">
+            <strong class="text-uppercase">
+                EMERGENCY BROADCAST — {{ notes[0].title }}
+            </strong>
+            <small class="text-muted">{{ notes[0].created_at | ist }}</small>
+        </div>
+        <p class="mb-1 mt-2">{{ notes[0].message }}</p>
+        {% if notes[0].city %}
+            <small>
+                <i class="fa fa-location-dot me-1"></i>{{ notes[0].city }}
+            </small>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ============================================================ -->
+<!-- QUICK ACTION BUTTONS                                          -->
+<!-- ============================================================ -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a href="{{ url_for('people_request') }}"
+           class="btn btn-danger btn-lg w-100 py-4 h-100 d-flex flex-column justify-content-center">
+            <i class="fa fa-hand-holding-heart fa-2x mb-2"></i>
+            <span class="fw-bold">Request Emergency Help</span>
+            <small class="opacity-75">AI will classify your request</small>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('people_map') }}"
+           class="btn btn-primary btn-lg w-100 py-4 h-100 d-flex flex-column justify-content-center">
+            <i class="fa fa-map-location-dot fa-2x mb-2"></i>
+            <span class="fw-bold">Find Safe Shelter</span>
+            <small class="opacity-75">Nearest bunkers on map</small>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('people_my_requests') }}"
+           class="btn btn-success btn-lg w-100 py-4 h-100 d-flex flex-column justify-content-center">
+            <i class="fa fa-clipboard-list fa-2x mb-2"></i>
+            <span class="fw-bold">My Requests</span>
+            <small class="opacity-75">Track your submissions</small>
+        </a>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MY RECENT REQUESTS (with View All link)                       -->
+<!-- ============================================================ -->
+<div class="card p-4 mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0">
+            <i class="fa fa-clipboard-list text-primary me-2"></i>
+            My Recent Requests
+        </h6>
+        <a href="{{ url_for('people_my_requests') }}"
+           class="btn btn-sm btn-outline-primary">
+            View All <i class="fa fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Message</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for r in requests %}
+                <tr>
+                    <td>#{{ r.id }}</td>
+                    <td style="max-width: 300px;">{{ r.raw_message }}</td>
+                    <td>
+                        <span class="badge bg-secondary text-uppercase">
+                            {{ r.help_type }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if r.severity == 'red' %}
+                            <span class="badge bg-danger">RED</span>
+                        {% elif r.severity == 'yellow' %}
+                            <span class="badge bg-warning text-dark">YELLOW</span>
+                        {% else %}
+                            <span class="badge bg-success">GREEN</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.status == 'helped' %}
+                            <span class="badge bg-success">
+                                <i class="fa fa-check me-1"></i>Helped
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="fa fa-hourglass-half me-1"></i>Pending
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ r.created_at }}</small></td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="fa fa-inbox d-block mb-2"></i>
+                        You haven't submitted any requests yet.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PREVIOUS BROADCASTS                                           -->
+<!-- ============================================================ -->
+{% if notes|length > 1 %}
+<div class="card p-4">
+    <h6 class="mb-3">
+        <i class="fa fa-bullhorn text-danger me-2"></i>
+        Previous Broadcasts
+    </h6>
+    {% for n in notes[1:] %}
+    <div class="border-start border-3 ps-3 mb-3
+        {% if n.severity == 'high' %}border-danger
+        {% elif n.severity == 'moderate' %}border-warning
+        {% else %}border-secondary{% endif %}">
+        <div class="d-flex justify-content-between align-items-center">
+            <strong>{{ n.title }}</strong>
+            <small class="text-muted">{{ n.created_at | ist }}</small>
+        </div>
+        <p class="mb-1 small mt-1">{{ n.message }}</p>
+        {% if n.city %}
+            <small class="text-muted">
+                <i class="fa fa-location-dot me-1"></i>{{ n.city }}
+            </small>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

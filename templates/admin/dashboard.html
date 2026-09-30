@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<h2 class="mb-4">
+    <i class="fa fa-gauge-high text-primary me-2"></i>Admin Control Center
+</h2>
+
+<!-- ============================================================ -->
+<!-- ML PREDICTION SHORTCUTS                                       -->
+<!-- ============================================================ -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a href="{{ url_for('admin_predict_flood') }}"
+           class="card p-3 text-decoration-none text-dark h-100 shadow-sm model-card">
+            <div class="d-flex align-items-center">
+                <i class="fa fa-water fa-2x text-info me-3"></i>
+                <div>
+                    <h6 class="mb-0">Flood Prediction</h6>
+                    <small class="text-muted">ML Model</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('admin_predict_earthquake') }}"
+           class="card p-3 text-decoration-none text-dark h-100 shadow-sm model-card">
+            <div class="d-flex align-items-center">
+                <i class="fa fa-house-crack fa-2x text-danger me-3"></i>
+                <div>
+                    <h6 class="mb-0">Earthquake Prediction</h6>
+                    <small class="text-muted">ML Model</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('admin_predict_cyclone') }}"
+           class="card p-3 text-decoration-none text-dark h-100 shadow-sm model-card">
+            <div class="d-flex align-items-center">
+                <i class="fa fa-hurricane fa-2x text-warning me-3"></i>
+                <div>
+                    <h6 class="mb-0">Cyclone Prediction</h6>
+                    <small class="text-muted">ML Model</small>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TOP STATS                                                     -->
+<!-- ============================================================ -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card bg-primary text-white p-3 rounded-3">
+            <small>Total Requests</small>
+            <h2 class="mb-0">{{ stats.total_requests }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-warning text-dark p-3 rounded-3">
+            <small>Pending</small>
+            <h2 class="mb-0">{{ stats.pending }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-success text-white p-3 rounded-3">
+            <small>Helped</small>
+            <h2 class="mb-0">{{ stats.helped }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-dark text-white p-3 rounded-3">
+            <small>Cities Affected</small>
+            <h2 class="mb-0">{{ regions|length }}</h2>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CATEGORY + SEVERITY BREAKDOWN                                 -->
+<!-- ============================================================ -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card p-4 h-100">
+            <h6 class="mb-3">
+                <i class="fa fa-boxes-stacked me-2 text-primary"></i>
+                Requests by Category
+            </h6>
+            <div class="d-flex justify-content-between mb-2">
+                <span><i class="fa fa-utensils text-success me-2"></i>Food</span>
+                <strong>{{ stats.food }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span><i class="fa fa-briefcase-medical text-danger me-2"></i>Medical</span>
+                <strong>{{ stats.medical }}</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span><i class="fa fa-house-chimney text-info me-2"></i>Shelter</span>
+                <strong>{{ stats.shelter }}</strong>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4 h-100">
+            <h6 class="mb-3">
+                <i class="fa fa-traffic-light me-2 text-primary"></i>
+                Severity Distribution
+            </h6>
+            <div class="d-flex justify-content-between mb-2">
+                <span><span class="badge bg-danger">RED</span> Severe</span>
+                <strong>{{ stats.red }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span><span class="badge bg-warning text-dark">YELLOW</span> Moderate</span>
+                <strong>{{ stats.yellow }}</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span><span class="badge bg-success">GREEN</span> Low</span>
+                <strong>{{ stats.green }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- REGION-WISE STATS                                             -->
+<!-- ============================================================ -->
+<div class="card p-4 mb-4">
+    <h6 class="mb-3">
+        <i class="fa fa-map-location-dot me-2 text-primary"></i>
+        Region-wise Requests
+    </h6>
+    {% if regions %}
+    <table class="table table-sm mb-0">
+        <thead>
+            <tr>
+                <th>City</th>
+                <th>Requests</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for r in regions %}
+            <tr>
+                <td>{{ r.city }}</td>
+                <td><span class="badge bg-primary">{{ r.count }}</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="text-muted mb-0">No location data yet.</p>
+    {% endif %}
+</div>
+
+<!-- ============================================================ -->
+<!-- RECENT PREDICTION HISTORY (with View All link)                -->
+<!-- ============================================================ -->
+<div class="card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0">
+            <i class="fa fa-clock-rotate-left me-2 text-primary"></i>
+            Recent ML Prediction History
+        </h6>
+        <a href="{{ url_for('admin_history') }}" class="btn btn-sm btn-outline-primary">
+            View All <i class="fa fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Model</th>
+                    <th>Prediction</th>
+                    <th>Confidence</th>
+                    <th>Alert</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for h in history %}
+                <tr>
+                    <td>{{ h.id }}</td>
+                    <td>
+                        {% if h.model_type == 'flood' %}
+                            <span class="badge bg-info text-dark text-uppercase">
+                                <i class="fa fa-water me-1"></i>Flood
+                            </span>
+                        {% elif h.model_type == 'earthquake' %}
+                            <span class="badge bg-danger text-uppercase">
+                                <i class="fa fa-house-crack me-1"></i>Quake
+                            </span>
+                        {% elif h.model_type == 'cyclone' %}
+                            <span class="badge bg-warning text-dark text-uppercase">
+                                <i class="fa fa-hurricane me-1"></i>Cyclone
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary text-uppercase">
+                                {{ h.model_type }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ h.prediction }}</strong></td>
+                    <td>
+                        {% if h.confidence %}
+                            {{ '%.2f'|format(h.confidence * 100) }}%
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if h.alert %}
+                            <span class="badge bg-danger">ALERT</span>
+                        {% else %}
+                            <span class="badge bg-success">SAFE</span>
+                        {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ h.created_at | ist }}</small></td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="fa fa-inbox d-block mb-2"></i>
+                        No predictions yet.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

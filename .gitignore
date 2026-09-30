@@ -1,0 +1,86 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# =========================
+# Secrets / Credentials
+# =========================
+.env
+.env.*
+!.env.example
+
+secrets/
+credentials/
+*secret*
+*credential*
+
+# =========================
+# Local databases
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+*.iml
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# Logs / temporary files
+# =========================
+*.log
+*.tmp
+*.temp
+*.bak
+
+# =========================
+# Python caches / testing
+# =========================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# =========================
+# Generated reports / outputs
+# =========================
+reports/
+out/
+*_report.pdf
+*.xlsx
+
+# =========================
+# Local ML artifacts
+# =========================
+saved_models/
+*.pkl
+*.joblib
+*.pt
+*.pth
+
+# =========================
+# Local generated images
+# =========================
+accuracy_comparison.png

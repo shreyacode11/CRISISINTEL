@@ -1,0 +1,4 @@
+Algorithm,Accuracy,Accuracy_Percentage
+Logistic Regression,1.0,100.0
+Random Forest,1.0,100.0
+SVM,1.0,100.0

@@ -1,0 +1,47 @@
+body {
+    background: #f4f6fa;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.container { flex: 1; }
+
+.gov-nav {
+    background: linear-gradient(90deg, #0b3d91 0%, #1565c0 100%);
+    box-shadow: 0 2px 12px rgba(0,0,0,.15);
+}
+.gov-nav .navbar-brand { letter-spacing: .5px; font-size: 1.35rem; }
+
+.hero {
+    background: linear-gradient(135deg, #0b3d91, #0a9396);
+    box-shadow: 0 10px 30px rgba(11,61,145,.25);
+}
+
+.feature-card {
+    background: #fff;
+    border-radius: 12px;
+    border-top: 4px solid #0b3d91;
+    box-shadow: 0 4px 18px rgba(0,0,0,.06);
+    transition: transform .2s;
+}
+.feature-card:hover { transform: translateY(-4px); }
+
+.model-card { transition: box-shadow .2s; border-left: 5px solid #0b3d91; }
+.model-card:hover { box-shadow: 0 6px 22px rgba(0,0,0,.12); }
+
+.stat-card h2 { font-weight: 700; }
+.stat-card small { opacity: .85; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; }
+
+.gov-footer {
+    background: #0b3d91;
+    color: #cdd7eb;
+    font-size: .85rem;
+}
+
+.card { border-radius: 10px; border: 1px solid #e6ebf5; }
+.table thead th { font-size: .8rem; text-transform: uppercase; letter-spacing: .3px; }
+
+.badge { font-weight: 600; letter-spacing: .3px; }
+
+.alert-danger { border-left: 5px solid #b00020; }

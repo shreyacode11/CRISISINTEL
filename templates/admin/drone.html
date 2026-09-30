@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Drone Surveillance{% endblock %}
+{% block content %}
+<h3 class="mb-4"><i class="fa fa-helicopter text-danger me-2"></i>Drone Feed — Injured Detection (YOLOv26)</h3>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card p-3">
+            <div class="d-flex gap-2 mb-3">
+                <button id="startBtn" class="btn btn-success"><i class="fa fa-play me-2"></i>Start</button>
+                <button id="stopBtn" class="btn btn-danger" disabled><i class="fa fa-stop me-2"></i>Stop</button>
+                <span class="ms-auto align-self-center badge bg-secondary" id="fpsBadge">0 FPS</span>
+            </div>
+            <video id="video" autoplay playsinline style="display:none; width:100%; max-height:400px; border-radius:10px;"></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <img id="annotated" class="w-100 rounded" style="display:none; max-height:480px; object-fit:contain;">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h6>Live Detections</h6>
+            <ul id="detectionList" class="list-group list-group-flush small"></ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/drone.js') }}"></script>
+{% endblock %}

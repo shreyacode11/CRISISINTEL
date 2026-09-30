@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}My Requests{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">
+        <i class="fa fa-clipboard-list text-primary me-2"></i>
+        My Help Requests
+    </h3>
+    <a href="{{ url_for('people_request') }}" class="btn btn-danger btn-sm">
+        <i class="fa fa-plus me-1"></i>New Request
+    </a>
+</div>
+
+<!-- Quick Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card p-3 border-start border-primary border-4">
+            <small class="text-muted text-uppercase">Total</small>
+            <h4 class="mb-0">{{ stats.total }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 border-start border-warning border-4">
+            <small class="text-muted text-uppercase">Pending</small>
+            <h4 class="mb-0">{{ stats.pending }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 border-start border-success border-4">
+            <small class="text-muted text-uppercase">Helped</small>
+            <h4 class="mb-0">{{ stats.helped }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 border-start border-danger border-4">
+            <small class="text-muted text-uppercase">Urgent</small>
+            <h4 class="mb-0">{{ stats.red }}</h4>
+        </div>
+    </div>
+</div>
+
+<!-- Filter -->
+<div class="mb-3">
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('people_my_requests') }}"
+           class="btn btn-outline-primary {{ 'active' if not f_status }}">
+            All
+        </a>
+        <a href="{{ url_for('people_my_requests', status='pending') }}"
+           class="btn btn-outline-warning {{ 'active' if f_status=='pending' }}">
+            Pending
+        </a>
+        <a href="{{ url_for('people_my_requests', status='helped') }}"
+           class="btn btn-outline-success {{ 'active' if f_status=='helped' }}">
+            Helped
+        </a>
+    </div>
+</div>
+
+<!-- Requests List -->
+{% if requests %}
+    <div class="row g-3">
+    {% for r in requests %}
+        <div class="col-md-6">
+            <div class="card h-100 border-start border-4
+                {% if r.severity == 'red' %}border-danger
+                {% elif r.severity == 'yellow' %}border-warning
+                {% else %}border-success{% endif %}">
+                <div class="card-body">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="badge bg-secondary text-uppercase me-1">
+                                #{{ r.id }}
+                            </span>
+                            <span class="badge bg-info text-dark text-uppercase">
+                                <i class="fa
+                                    {% if r.help_type == 'food' %}fa-utensils
+                                    {% elif r.help_type == 'medical' %}fa-briefcase-medical
+                                    {% else %}fa-house-chimney{% endif %} me-1"></i>
+                                {{ r.help_type }}
+                            </span>
+                        </div>
+                        <div>
+                            {% if r.severity == 'red' %}
+                                <span class="badge bg-danger">RED</span>
+                            {% elif r.severity == 'yellow' %}
+                                <span class="badge bg-warning text-dark">YELLOW</span>
+                            {% else %}
+                                <span class="badge bg-success">GREEN</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Message -->
+                    <p class="mb-2 small">{{ r.raw_message }}</p>
+
+                    <!-- Location -->
+                    {% if r.city %}
+                    <p class="mb-2 small text-muted">
+                        <i class="fa fa-location-dot me-1"></i>{{ r.city }}
+                    </p>
+                    {% endif %}
+
+                    <!-- Status + Time -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            {% if r.status == 'helped' %}
+                                <span class="badge bg-success">
+                                    <i class="fa fa-circle-check me-1"></i>Helped
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fa fa-hourglass-half me-1"></i>Pending
+                                </span>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">{{ r.created_at }}</small>
+                    </div>
+
+                    <!-- Map link for urgent -->
+                    {% if r.severity in ['red','yellow'] and r.latitude and r.longitude %}
+                    <a href="{{ url_for('people_map') }}?lat={{ r.latitude }}&lon={{ r.longitude }}&city={{ r.city or '' }}"
+                       class="btn btn-sm btn-outline-primary w-100 mt-3">
+                        <i class="fa fa-map me-1"></i>View Nearest Safe Route
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% else %}
+    <div class="card p-5 text-center">
+        <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No requests found</h5>
+        <p class="text-muted mb-3">You haven't submitted any help requests yet.</p>
+        <a href="{{ url_for('people_request') }}" class="btn btn-danger">
+            <i class="fa fa-hand-holding-heart me-1"></i>Request Help Now
+        </a>
+    </div>
+{% endif %}
+
+{% endblock %}

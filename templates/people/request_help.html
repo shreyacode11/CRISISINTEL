@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Request Help{% endblock %}
+{% block content %}
+<h3 class="mb-3"><i class="fa fa-hand-holding-heart text-danger me-2"></i>Request Emergency Help</h3>
+<h3>My family is trapped on the second floor, we need drinking water and medical help urgently...</h3>
+<div class="row">
+    <div class="col-md-7">
+        <div class="card p-4">
+            <form method="POST" id="reqForm">
+                <div class="mb-3">
+                    <label class="form-label">Describe your situation</label>
+                    <textarea name="message" rows="5" class="form-control" required
+                              placeholder="e.g. My family is trapped on the second floor, we need drinking water and medical help urgently..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">City</label>
+                    <input name="city" id="cityInput" class="form-control" required>
+                </div>
+                <input type="hidden" name="latitude" id="lat">
+                <input type="hidden" name="longitude" id="lon">
+                <p class="small text-muted" id="locStatus">Fetching your location…</p>
+                <button class="btn btn-danger w-100 py-3"><i class="fa fa-paper-plane me-2"></i>Submit Request</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-5">
+        {% if result %}
+        <div class="card p-4">
+            <h5>AI Classification</h5>
+            <hr>
+            <p><strong>Help Type:</strong> <span class="badge bg-secondary text-uppercase">{{ result.help_type }}</span></p>
+            <p><strong>Severity:</strong>
+                {% if result.severity=='red' %}<span class="badge bg-danger">RED — SEVERE</span>
+                {% elif result.severity=='yellow' %}<span class="badge bg-warning text-dark">YELLOW — MODERATE</span>
+                {% else %}<span class="badge bg-success">GREEN — LOW</span>{% endif %}
+            </p>
+            {% if result.reason %}<p class="small text-muted">{{ result.reason }}</p>{% endif %}
+
+            {% if result.severity == 'red' %}
+                <div class="alert alert-danger mt-3 mb-0">
+                    <i class="fa fa-triangle-exclamation me-2"></i>
+                    <strong>SEVERE EMERGENCY.</strong>
+                    Please proceed immediately to the nearest safe shelter.
+                </div>
+                {% elif result.severity == 'yellow' %}
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="fa fa-circle-exclamation me-2"></i>
+                    <strong>Moderate emergency.</strong>
+                    Consider moving to a safe location.
+                </div>
+                {% endif %}
+
+                {% if result.severity in ['red','yellow'] %}
+                    {% if result.lat and result.lon %}
+                        <a href="{{ url_for('people_map') }}?lat={{ result.lat }}&lon={{ result.lon }}&city={{ result.city or '' }}"
+                        class="btn btn-primary w-100 mt-3 py-3">
+                            <i class="fa fa-map-location-dot me-2"></i>
+                            View Nearest Safe Shelters on Map
+                        </a>
+                    {% else %}
+                        <div class="alert alert-secondary mt-3 mb-0 small">
+                            <i class="fa fa-info-circle me-1"></i>
+                            Location could not be determined. Open the map manually:
+                            <a href="{{ url_for('people_map') }}" class="fw-bold">Open Map</a>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+            <div class="alert alert-info mt-3 mb-0 small">Request ID #{{ result.id }} submitted.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/location.js') }}"></script>
+{% endblock %}

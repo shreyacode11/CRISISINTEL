@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Flood Prediction{% endblock %}
+{% block content %}
+<h3 class="mb-4"><i class="fa fa-water text-info me-2"></i>Flood Prediction</h3>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card p-4">
+            <form method="POST" id="floodForm">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fa fa-location-dot me-1 text-danger"></i>
+                        Target City
+                    </label>
+                    <select name="city" class="form-select" required>
+                        <option value="" disabled selected>Select city…</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Goa">Goa</option>
+                    </select>
+                    <small class="text-muted">
+                        The alert will be sent to this city's people bot.
+                    </small>
+                </div>
+
+                
+                <p class="text-muted small">Enter all features required by the trained flood model.</p>
+                <div id="dynamicFields"></div>
+                <button class="btn btn-primary mt-3"><i class="fa fa-play me-2"></i>Predict</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-5">
+        {% if result %}
+            <div class="card p-4 border-0 shadow-sm"
+                style="border: 2px solid {{ '#dc3545' if result.alert else '#28a745' }} !important;">
+                <h5>Prediction Result</h5>
+                <hr>
+
+                <p class="mb-2"><strong>Flood Risk Level:</strong>
+                    {% set lbl = result.label|string|lower|replace(' ','_') %}
+                    {% if lbl == 'very_high' %}
+                        <span class="badge bg-danger fs-6">VERY HIGH</span>
+                    {% elif lbl == 'high' %}
+                        <span class="badge bg-danger fs-6">HIGH</span>
+                    {% elif lbl == 'moderate' %}
+                        <span class="badge bg-warning text-dark fs-6">MODERATE</span>
+                    {% elif lbl == 'low' %}
+                        <span class="badge bg-info text-dark fs-6">LOW</span>
+                    {% else %}
+                        <span class="badge bg-success fs-6">NO FLOOD</span>
+                    {% endif %}
+                </p>
+
+                {% if result.confidence %}
+                <p><strong>Confidence:</strong>
+                    {{ '%.2f'|format(result.confidence * 100) }}%
+                </p>
+                {% endif %}
+
+                {% if result.alert %}
+                    <div class="alert alert-danger mt-3 mb-0">
+                        <i class="fa fa-triangle-exclamation me-2"></i>
+                        <strong>FLOOD ALERT!</strong>
+                        Immediate action recommended for the affected region.
+                    </div>
+                {% else %}
+                    <div class="alert alert-success mt-3 mb-0">
+                        <i class="fa fa-circle-check me-2"></i>
+                        No significant flood threat predicted.
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Dynamically render fields based on flood.pkl feature_columns
+fetch("{{ url_for('api_flood_fields') }}")
+    .then(r => r.json())
+    .then(data => {
+        const container = document.getElementById("dynamicFields");
+        container.innerHTML = "";
+        data.fields.forEach(f => {
+            const div = document.createElement("div");
+            div.className = "mb-3";
+            if (f.type === "categorical") {
+                div.innerHTML = `<label class="form-label">${f.name}</label>
+                    <select name="${f.name}" class="form-select" required>
+                        ${f.options.map(o => `<option value="${o}">${o}</option>`).join("")}
+                    </select>`;
+            } else {
+                div.innerHTML = `<label class="form-label">${f.name}</label>
+                    <input type="number" step="any" name="${f.name}" class="form-control" required>`;
+            }
+            container.appendChild(div);
+        });
+    });
+</script>
+{% endblock %}

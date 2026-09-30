@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Help Requests{% endblock %}
+{% block content %}
+<h3 class="mb-4"><i class="fa fa-list-check text-primary me-2"></i>Citizen Help Requests</h3>
+
+<form class="row g-2 mb-4">
+    <div class="col-md-3">
+        <select name="severity" class="form-select">
+            <option value="">All Severity</option>
+            <option value="red" {{ 'selected' if filter_sev=='red' }}>Red</option>
+            <option value="yellow" {{ 'selected' if filter_sev=='yellow' }}>Yellow</option>
+            <option value="green" {{ 'selected' if filter_sev=='green' }}>Green</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="type" class="form-select">
+            <option value="">All Types</option>
+            <option value="food" {{ 'selected' if filter_type=='food' }}>Food</option>
+            <option value="medical" {{ 'selected' if filter_type=='medical' }}>Medical</option>
+            <option value="shelter" {{ 'selected' if filter_type=='shelter' }}>Shelter</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="city" class="form-select">
+            <option value="">All Cities</option>
+            {% for c in cities %}<option value="{{ c }}" {{ 'selected' if filter_city==c }}>{{ c }}</option>{% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3"><button class="btn btn-primary w-100">Filter</button></div>
+</form>
+
+<div class="card p-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th><th>Citizen</th><th>Message</th><th>Type</th>
+                    <th>Severity</th><th>City</th><th>Status</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for r in requests %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.uname }}<br><small class="text-muted">{{ r.uemail }}</small></td>
+                <td style="max-width:300px">{{ r.raw_message }}</td>
+                <td><span class="badge bg-secondary text-uppercase">{{ r.help_type }}</span></td>
+                <td>
+                    {% if r.severity == 'red' %}<span class="badge bg-danger">RED</span>
+                    {% elif r.severity == 'yellow' %}<span class="badge bg-warning text-dark">YELLOW</span>
+                    {% else %}<span class="badge bg-success">GREEN</span>{% endif %}
+                </td>
+                <td>{{ r.city or '—' }}</td>
+                <td>
+                    {% if r.status == 'helped' %}<span class="badge bg-success">Helped</span>
+                    {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin_toggle_request', rid=r.id) }}">
+                        <button class="btn btn-sm btn-outline-primary">
+                            {{ 'Mark Pending' if r.status=='helped' else 'Mark Helped' }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center text-muted py-4">No requests yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

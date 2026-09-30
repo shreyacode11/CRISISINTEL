@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Prediction History{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">
+        <i class="fa fa-clock-rotate-left text-primary me-2"></i>
+        ML Prediction History
+    </h3>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="fa fa-arrow-left me-1"></i>Back to Dashboard
+    </a>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3 border-start border-info border-4">
+            <small class="text-muted text-uppercase">Flood Predictions</small>
+            <h4 class="mb-0">{{ counts.flood }}</h4>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 border-start border-danger border-4">
+            <small class="text-muted text-uppercase">Earthquake Predictions</small>
+            <h4 class="mb-0">{{ counts.earthquake }}</h4>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 border-start border-warning border-4">
+            <small class="text-muted text-uppercase">Cyclone Predictions</small>
+            <h4 class="mb-0">{{ counts.cyclone }}</h4>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<form class="row g-2 mb-3" method="GET">
+    <div class="col-md-3">
+        <select name="model" class="form-select">
+            <option value="">All Models</option>
+            <option value="flood"      {{ 'selected' if f_model=='flood' }}>Flood</option>
+            <option value="earthquake" {{ 'selected' if f_model=='earthquake' }}>Earthquake</option>
+            <option value="cyclone"    {{ 'selected' if f_model=='cyclone' }}>Cyclone</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="alert" class="form-select">
+            <option value="">All Alerts</option>
+            <option value="1" {{ 'selected' if f_alert=='1' }}>Alert Only</option>
+            <option value="0" {{ 'selected' if f_alert=='0' }}>Safe Only</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="date" value="{{ f_date }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+        <button class="btn btn-primary w-100"><i class="fa fa-filter me-1"></i>Apply Filter</button>
+    </div>
+</form>
+
+<!-- History Table -->
+<div class="card p-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:60px">#</th>
+                    <th>Model</th>
+                    <th>Input Parameters</th>
+                    <th>Prediction</th>
+                    <th>Confidence</th>
+                    <th>Alert</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for h in history %}
+                <tr>
+                    <td>{{ h.id }}</td>
+                    <td>
+                        {% if h.model_type == 'flood' %}
+                            <span class="badge bg-info text-dark text-uppercase">
+                                <i class="fa fa-water me-1"></i>Flood
+                            </span>
+                        {% elif h.model_type == 'earthquake' %}
+                            <span class="badge bg-danger text-uppercase">
+                                <i class="fa fa-house-crack me-1"></i>Earthquake
+                            </span>
+                        {% elif h.model_type == 'cyclone' %}
+                            <span class="badge bg-warning text-dark text-uppercase">
+                                <i class="fa fa-hurricane me-1"></i>Cyclone
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary text-uppercase">{{ h.model_type }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#params-{{ h.id }}">
+                            <i class="fa fa-eye me-1"></i>View Inputs
+                        </button>
+                        <div id="params-{{ h.id }}" class="collapse mt-2">
+                            <pre class="bg-light p-2 rounded small mb-0"
+                                 style="max-height:180px; overflow:auto;">{{ h.input_data_pretty }}</pre>
+                        </div>
+                    </td>
+                    <td><strong>{{ h.prediction }}</strong></td>
+                    <td>
+                        {% if h.confidence %}
+                            <div class="progress" style="height:18px; min-width:100px;">
+                                <div class="progress-bar
+                                    {% if h.confidence > 0.75 %}bg-success
+                                    {% elif h.confidence > 0.5 %}bg-warning
+                                    {% else %}bg-secondary{% endif %}"
+                                     style="width: {{ (h.confidence * 100) | round(0) }}%;">
+                                    {{ (h.confidence * 100) | round(1) }}%
+                                </div>
+                            </div>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if h.alert %}
+                            <span class="badge bg-danger">
+                                <i class="fa fa-triangle-exclamation me-1"></i>ALERT
+                            </span>
+                        {% else %}
+                            <span class="badge bg-success">
+                                <i class="fa fa-circle-check me-1"></i>SAFE
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ h.created_at | ist }}</small></td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="fa fa-inbox fa-2x d-block mb-2"></i>
+                        No prediction history found.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
